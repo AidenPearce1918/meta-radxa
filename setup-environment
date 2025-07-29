@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # Script to find machine configuration files from meta* directories, 
 # allow user selection, and update build configurations dynamically.
 
