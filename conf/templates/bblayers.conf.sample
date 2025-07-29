@@ -1,0 +1,15 @@
+# --- File: meta-radxa/conf/templates/bblayers.conf.sample ---
+# Template bblayers.conf for reference
+LCONF_VERSION = "8"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+BBLAYERS ?= " \
+  ${TOPDIR}/../poky/meta \
+  ${TOPDIR}/../poky/meta-poky \
+  ${TOPDIR}/../poky/meta-yocto-bsp \
+  ${TOPDIR}/../meta-rockchip \
+  ${TOPDIR}/../meta-arm/meta-arm \
+  ${TOPDIR}/../meta-arm/meta-arm-toolchain \
+"
