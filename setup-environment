@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Script to find machine configuration files from meta* directories, 
+# allow user selection, and update build configurations dynamically.
+
+# Find all directories starting with 'meta' (meta*, like meta-rockchip, meta-x, etc.)
+
+# Resolve path to this script (i.e., meta-radxa directory)
+LAYER_CONF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/conf"
+TEMPLATE_CONF_DIR="$LAYER_CONF_DIR/templates"
+
+META_DIRS=$(find ./ -maxdepth 1 -type d -name "meta*")
+
+# Check if any 'meta*' directories were found
+if [ -z "$META_DIRS" ]; then
+    echo "Error: No 'meta*' directories found."
+    exit 1
+fi
+
+# Declare an array to store machine configurations and meta layers
+declare -a machine_meta_pairs=()
+
+# Loop through each found meta* directory and search for *.conf files in conf/machine/
+for META_DIR in $META_DIRS; do
+    CONFS=$(find "$META_DIR/conf/machine/" -type f -name "*.conf" 2>/dev/null)
+    if [ -n "$CONFS" ]; then
+        for CONF in $CONFS; do
+            machine_meta_pairs+=("$(basename "$CONF" .conf)|$(basename "$META_DIR")")
+        done
+    fi
+done
+
+# Check if machine configurations were found
+if [ ${#machine_meta_pairs[@]} -eq 0 ]; then
+    echo "No machine configuration files found in any 'meta*/conf/machine/' directories."
+    exit 1
+fi
+
+# Sort the machine-meta pairs by machine name
+IFS=$'\n' sorted_pairs=($(sort <<<"${machine_meta_pairs[*]}"))
+unset IFS
+
+# Display sorted list of configurations
+echo "List of machine configuration files (sorted and indexed):"
+for i in "${!sorted_pairs[@]}"; do
+    machine=$(echo "${sorted_pairs[$i]}" | cut -d '|' -f 1)
+    meta_layer=$(echo "${sorted_pairs[$i]}" | cut -d '|' -f 2)
+    echo "$((i + 1))  $machine  ($meta_layer)"
+done
+
+# Prompt user for selection
+while true; do
+    echo -n "Enter the index number of the configuration you want to select: "
+    read user_index
+    if [[ "$user_index" =~ ^[0-9]+$ ]] && [ "$user_index" -ge 1 ] && [ "$user_index" -le "${#sorted_pairs[@]}" ]; then
+        selected_pair="${sorted_pairs[$((user_index - 1))]}"
+        selected_conf=$(echo "$selected_pair" | cut -d '|' -f 1)
+        selected_layer=$(echo "$selected_pair" | cut -d '|' -f 2)
+        break
+    else
+        echo "Invalid input. Please enter a valid index number."
+    fi
+done
+
+# Source the build environment
+BUILDDIR="$(pwd)/$selected_conf"
+CONF_DIR="$BUILDDIR/conf"
+
+if [ ! -d $CONF_DIR ]; then
+	mkdir -p "$CONF_DIR"
+	cp $TEMPLATE_CONF_DIR/local.conf.sample $CONF_DIR/local.conf
+	cp $TEMPLATE_CONF_DIR/bblayers.conf.sample $CONF_DIR/bblayers.conf
+	cp $LAYER_CONF_DIR/distro/radxa.conf $CONF_DIR/radxa.conf
+fi
+
+file_path=$CONF_DIR/local.conf
+
+sed -i "s|^MACHINE\s*??=\s*\".*\"|MACHINE ??= \"$selected_conf\"|" "$file_path"
+
+echo "Initializing the build environment for $selected_conf..."
+source poky/oe-init-build-env $selected_conf
