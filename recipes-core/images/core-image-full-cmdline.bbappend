@@ -1,5 +1,3 @@
-# core-image-base.bbappend
-#
 # Enable package management
 PACKAGE_CLASSES ?= "package_deb"
 EXTRA_IMAGE_FEATURES += "package-management"
@@ -9,12 +7,11 @@ IMAGE_INSTALL:append = " \
     apt \
     dpkg \
     gnupg \
-    apt-utils \
     bash \
     busybox \
     coreutils \
     util-linux \
-    e2fsprogs \
+    e2fsprogs-resize2fs \
     dosfstools \
     parted \
     procps \
@@ -24,15 +21,10 @@ IMAGE_INSTALL:append = " \
     tar \
     gzip \
     bzip2 \
-    xz-utils \
     file \
-    hostname \
     lsb-release \
     iproute2 \
     net-tools \
-    openssh-client \
-    openssh-server \
-    dnsutils \
     wget \
     curl \
     iptables \
@@ -48,13 +40,18 @@ IMAGE_INSTALL:append = " \
     lsof \
     bc \
     less \
+    vim \
+    zstd \
     man-db \
     vim-tiny \
     python3 \
-    python3-minimal \
     python3-pip \
     python3-setuptools \
     python3-wheel \
+    libxcrypt \
+    perl \
+    pre-configs \
+    ar \
 "
 
 # Optional: add any target-specific kernel modules here
