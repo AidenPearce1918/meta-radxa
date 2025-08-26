@@ -62,16 +62,23 @@ bitbake core-image-minimal
 
 ```
 meta-radxa/
-├── conf/
-│   ├── distro/
-│   │   └── radxa.conf              # Custom DISTRO definition
-│   ├── layer.conf                  # Standard layer metadata
-│   └── templates/
-│       ├── local.conf.sample       # Used during setup
-│       └── bblayers.conf.sample    # Used during setup
-├── setup-environment.sh            # Interactive build setup
+├── COPYING.MIT
 ├── README.md
-└── COPYING.MIT
+├── conf
+│   ├── distro
+│   │   └── radxa.conf
+│   ├── layer.conf
+│   └── templates
+│       ├── bblayers.conf.sample
+│       └── local.conf.sample
+├── recipes-core
+│   └── images
+│       ├── core-image-base.bbappend
+│       └── core-image-minimal.bbappend
+├── recipes-networking
+│   └── aic8800
+│       └── aic8800.bb
+└── setup-environment
 ```
 
 ---
@@ -106,3 +113,4 @@ Some common targets include:
 
 This layer is licensed under the MIT License.
 See [`COPYING.MIT`](COPYING.MIT) for full details.
+
